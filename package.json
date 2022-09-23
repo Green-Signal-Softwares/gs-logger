@@ -2,24 +2,37 @@
   "name": "gs-logger",
   "version": "1.0.0",
   "description": "",
-  "main": "index.ts",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
   "scripts": {
-    "test": "vitest"
+    "test": "vitest",
+    "build": "tsc"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Green-Signal-Softwares/gs-logger.git"
   },
   "type": "module",
-  "keywords": [],
+  "keywords": [
+    "logger",
+    "winston",
+    "file",
+    "rotate"
+  ],
   "author": "",
   "license": "ISC",
+  "files": [
+    "lib/**/*"
+  ],
   "bugs": {
     "url": "https://github.com/Green-Signal-Softwares/gs-logger/issues"
   },
   "homepage": "https://github.com/Green-Signal-Softwares/gs-logger#readme",
   "devDependencies": {
     "@types/node": "^18.7.18",
+    "prettier": "^2.7.1",
+    "tslint": "^6.1.3",
+    "tslint-config-prettier": "^1.18.0",
     "typescript": "^4.8.3",
     "vitest": "^0.23.4"
   },
