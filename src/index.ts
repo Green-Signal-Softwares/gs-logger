@@ -1,6 +1,6 @@
 import winston from "winston";
 import DailyRotateFile, { DailyRotateFileTransportOptions } from "winston-daily-rotate-file";
-import chalk, { ChalkInstance } from "chalk";
+import chalk from "chalk";
 import superjson from "superjson";
 import path from "path";
 
@@ -44,7 +44,7 @@ function getStringDate(date: Date) {
 }
 
 function parseJsonToLog({ timestamp, message, level, data }: CommonLog<LogPayload>) {
-  const colors = myCustomLevels.colors as Record<string, ChalkInstance>;
+  const colors = myCustomLevels.colors as Record<string, chalk.Chalk>;
   const date = chalk.gray(`[${getStringDate(new Date(timestamp))}]`);
 
   const processed = message
