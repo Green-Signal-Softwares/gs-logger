@@ -149,24 +149,39 @@ export class Logger {
     return new Logger({ logger, session, path, tags });
   }
 
+  /**
+   * Create a new instance of Logger extending the session data
+   */
   public withSession(data: LogPayload["data"]) {
     return this.extend({ session: { ...this._session, ...data } });
   }
 
+  /**
+   * Create a new instance of Logger extending the tags data
+   */
   public withTags(...data: string[]) {
     return this.extend({ tags: [...(this._tags || []), ...data] });
   }
 
+  /**
+   * Extends this istance of Logger with new session data
+   */
   public addSession(data: LogPayload["data"]) {
     this._session = { ...this._session, ...data };
     return this.removeSession(data);
   }
 
+  /**
+   * Extends this istance of Logger with new tags data
+   */
   public addTag(...data: string[]) {
     this._tags = [...(this._tags || []), ...data];
     return this.removeTag(...data);
   }
 
+  /**
+   * Remove the session data in this instance
+   */
   private removeSession(data: LogPayload["data"]) {
     return () => {
       if (!data || !this._session) return;
@@ -174,6 +189,9 @@ export class Logger {
     };
   }
 
+  /**
+   * Remove the tags data in this instance
+   */
   private removeTag(...data: string[]) {
     return () => {
       if (!this._tags) return;
@@ -181,10 +199,16 @@ export class Logger {
     };
   }
 
+  /**
+   * Clear all session in this instance
+   */
   public clearSession() {
     this._session = undefined;
   }
 
+  /**
+   * Clear all tags in this instance
+   */
   public clearTags() {
     this._tags = undefined;
   }
