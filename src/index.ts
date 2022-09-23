@@ -11,6 +11,7 @@ export interface LogPayload {
   message: string;
   data?: JSONObjectType;
   session?: JSONObjectType;
+  tags?: string[];
 }
 
 const myCustomLevels = {
@@ -113,11 +114,13 @@ interface LoggerOptions {
   path: string;
   logger?: winston.Logger;
   session?: LogPayload["session"];
+  tags?: LogPayload["tags"];
 }
 
 export class Logger {
   private _logger!: winston.Logger;
-  private _session?: LogPayload["data"];
+  private _session?: LogPayload["session"];
+  private _tags?: LogPayload["tags"];
   private _path!: string;
 
   private _consoleTransporter!: winston.transports.ConsoleTransportInstance;
@@ -134,10 +137,56 @@ export class Logger {
       });
     this._session = options.session;
     this._path = options.path;
+    this._tags = options.tags;
   }
 
-  private extend({ logger = this._logger, session = this._session, path = this._path }: Partial<LoggerOptions> = {}) {
-    return new Logger({ logger, session, path });
+  private extend({
+    logger = this._logger,
+    session = this._session,
+    path = this._path,
+    tags = this._tags,
+  }: Partial<LoggerOptions> = {}) {
+    return new Logger({ logger, session, path, tags });
+  }
+
+  public withSession(data: LogPayload["data"]) {
+    return this.extend({ session: { ...this._session, ...data } });
+  }
+
+  public withTags(...data: string[]) {
+    return this.extend({ tags: [...(this._tags || []), ...data] });
+  }
+
+  public addSession(data: LogPayload["data"]) {
+    this._session = { ...this._session, ...data };
+    return this.removeSession(data);
+  }
+
+  public addTag(...data: string[]) {
+    this._tags = [...(this._tags || []), ...data];
+    return this.removeTag(...data);
+  }
+
+  private removeSession(data: LogPayload["data"]) {
+    return () => {
+      if (!data || !this._session) return;
+      for (const key of Object.keys(data)) delete this._session[key];
+    };
+  }
+
+  private removeTag(...data: string[]) {
+    return () => {
+      if (!this._tags) return;
+      this._tags = this._tags.filter((tag) => !data.includes(tag));
+    };
+  }
+
+  public clearSession() {
+    this._session = undefined;
+  }
+
+  public clearTags() {
+    this._tags = undefined;
   }
 
   private log(
@@ -153,27 +202,6 @@ export class Logger {
 
     getLogMethod(this._logger)(payload);
     return this;
-  }
-
-  public setData(data: LogPayload["data"]) {
-    return this.extend({ session: { ...this._session, ...data } });
-  }
-
-  public use(data: LogPayload["data"]) {
-    this._session = { ...this._session, ...data };
-    return this.remove(data);
-  }
-
-  private remove(data: LogPayload["data"]) {
-    return () => {
-      if (!data || !this._session) return;
-      for (const key of Object.keys(data)) delete this._session[key];
-    };
-  }
-
-  divider() {
-    const divider = Array.from({ length: 80 }, () => "-").join("");
-    return this.debug(divider);
   }
 
   info(message: string, data?: Record<string, any>) {
@@ -195,6 +223,11 @@ export class Logger {
 
   debug(message: string, data?: Record<string, any>) {
     return this.log((logger) => logger.debug, message, data);
+  }
+
+  divider() {
+    const divider = Array.from({ length: 80 }, () => "-").join("");
+    return this.debug(divider);
   }
 
   timer(name: string) {
