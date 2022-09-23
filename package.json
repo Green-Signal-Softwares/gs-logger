@@ -12,7 +12,6 @@
     "type": "git",
     "url": "git+https://github.com/Green-Signal-Softwares/gs-logger.git"
   },
-  "type": "module",
   "keywords": [
     "logger",
     "winston",
