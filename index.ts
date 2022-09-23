@@ -65,17 +65,16 @@ function parseJsonToLog({ timestamp, message, level, data }: CommonLog<LogPayloa
 }
 
 const rotateFileTransport = ({
-  filepath = "logs",
-  filename = "%DATE%",
+  path,
   datePattern = "YYYY-MM-DD",
   maxSize = "20m",
   ...rest
 }: Record<string, any> & DailyRotateFileTransportOptions) => {
-  const finalFileName = path.resolve(__dirname, "..", "..", "..", filepath, `${filename}.log`);
+  const filename = path.resolve(path, `%DATE%.log`);
 
   return new DailyRotateFile({
     // @ts-ignore
-    filename: finalFileName,
+    filename,
     datePattern,
     maxSize,
     ...rest,
@@ -95,27 +94,50 @@ const fileFormat = () => {
 };
 
 export const transporters = {
-  console: new winston.transports.Console({
-    format: winston.format.combine(winston.format.timestamp(), consoleFormat()),
-    handleExceptions: true,
-    level: "debug",
-  }),
-  file: rotateFileTransport({
-    format: winston.format.combine(winston.format.timestamp(), fileFormat()),
-    handleExceptions: true,
-    level: "debug",
-  }),
+  console: () =>
+    new winston.transports.Console({
+      format: winston.format.combine(winston.format.timestamp(), consoleFormat()),
+      handleExceptions: true,
+      level: "debug",
+    }),
+  file: (path: string) =>
+    rotateFileTransport({
+      format: winston.format.combine(winston.format.timestamp(), fileFormat()),
+      handleExceptions: true,
+      level: "debug",
+      path,
+    }),
 };
 
-export class Logger {
-  private constructor(private _logger: winston.Logger, private _session?: LogPayload["data"]) {}
+interface LoggerOptions {
+  path: string;
+  logger?: winston.Logger;
+  session?: LogPayload["session"];
+}
 
-  static create() {
-    return new Logger(winstonLogger);
+export class Logger {
+  private _logger!: winston.Logger;
+  private _session?: LogPayload["data"];
+  private _path!: string;
+
+  private _consoleTransporter!: winston.transports.ConsoleTransportInstance;
+  private _fileTransporter!: DailyRotateFile;
+
+  constructor(options: LoggerOptions) {
+    this._consoleTransporter = transporters.console();
+    this._fileTransporter = transporters.file(options.path);
+    this._logger =
+      options.logger ||
+      winston.createLogger({
+        levels: myCustomLevels.levels,
+        transports: [this._consoleTransporter, this._fileTransporter],
+      });
+    this._session = options.session;
+    this._path = options.path;
   }
 
-  private extend({ logger = this._logger, session = this._session } = {}) {
-    return new Logger(logger, session);
+  private extend({ logger = this._logger, session = this._session, path = this._path }: Partial<LoggerOptions> = {}) {
+    return new Logger({ logger, session, path });
   }
 
   private log(
@@ -188,12 +210,12 @@ export class Logger {
   }
 
   disableFile() {
-    this._logger.remove(transporters.file);
+    this._logger.remove(this._fileTransporter);
     return this;
   }
 
   enableFile() {
-    this._logger.add(transporters.file);
+    this._logger.add(this._fileTransporter);
     return this;
   }
 }
