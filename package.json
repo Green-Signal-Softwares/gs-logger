@@ -4,12 +4,13 @@
   "description": "",
   "main": "index.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "vitest"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Green-Signal-Softwares/gs-logger.git"
   },
+  "type": "module",
   "keywords": [],
   "author": "",
   "license": "ISC",
@@ -19,7 +20,8 @@
   "homepage": "https://github.com/Green-Signal-Softwares/gs-logger#readme",
   "devDependencies": {
     "@types/node": "^18.7.18",
-    "typescript": "^4.8.3"
+    "typescript": "^4.8.3",
+    "vitest": "^0.23.4"
   },
   "dependencies": {
     "chalk": "^5.0.1",

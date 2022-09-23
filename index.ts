@@ -65,12 +65,12 @@ function parseJsonToLog({ timestamp, message, level, data }: CommonLog<LogPayloa
 }
 
 const rotateFileTransport = ({
-  path,
+  path: logsPath,
   datePattern = "YYYY-MM-DD",
   maxSize = "20m",
   ...rest
 }: Record<string, any> & DailyRotateFileTransportOptions) => {
-  const filename = path.resolve(path, `%DATE%.log`);
+  const filename = path.resolve(logsPath, `%DATE%.log`);
 
   return new DailyRotateFile({
     // @ts-ignore
