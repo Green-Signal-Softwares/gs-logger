@@ -59,7 +59,7 @@ function parseJsonToLog({ timestamp, message, level, data }: CommonLog<LogPayloa
   const logs = [`${date} ${colors[level](processed)}`];
 
   if (data) {
-    logs.push(JSON.stringify(data, null, 2));
+    logs.push(superjson.stringify(data));
   }
 
   return logs.join(" ");
@@ -90,7 +90,7 @@ const consoleFormat = () => {
 
 const fileFormat = () => {
   return winston.format.printf((obj) => {
-    return JSON.stringify(obj);
+    return superjson.stringify(obj);
   });
 };
 
