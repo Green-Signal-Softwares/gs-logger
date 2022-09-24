@@ -22,6 +22,7 @@ jobs:
           git add .
           git commit -m "Build for ${{ github.sha }}"
           git push
+        continue-on-error: true
       # - name: Archive production artifacts
       #   uses: actions/upload-artifact@v3
       #   with:
