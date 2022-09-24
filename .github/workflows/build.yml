@@ -22,8 +22,8 @@ jobs:
       - run: ls -la
       
       - name: Pushing lib folder
-        uses: actions/checkout@v3
-        run: |
+      - uses: actions/checkout@v3
+      - run: |
           git config --global user.email "thumendess@gmail.com"
           git config --global user.name "Arthur Mendes"
           git add .
