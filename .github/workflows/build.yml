@@ -14,7 +14,7 @@ jobs:
       - run: echo "🔥 Rodando build."
       - name: Build
         run: npm run build
-      - uses: actions/checkout@v3
+      - name: Pushing lib folder
       - run: |
           git config user.name github-actions
           git config user.email github-actions@github.com
